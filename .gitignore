@@ -1,1 +1,4 @@
 warlight_player.py
+.idea*
+*.zip
+__pycache__

@@ -138,3 +138,39 @@ class Bot(object):
     @abstractmethod
     def attack_transfer(self, time):
         return ''
+
+
+# Used for easy building of the output string for placing armies
+class PlaceArmyBuilder(object):
+    def __init__(self, player):
+        self.actions = []
+        self.name = player
+
+    # Add a new army tuple to the list (region, qty)
+    def add(self, region, qty):
+        self.actions.append((region, qty))
+
+    # Convert all queued army placements to a string
+    def to_string(self):
+        if not self.actions:
+            return const.NO_MOVES
+        return ', '.join(['%s %s %s %d' % (self.name, const.PLACE_ARMIES, action[0], action[1])
+                          for action in self.actions])
+
+
+# Used for easy building of the output string for attacking and transferring
+class AttackTransferBuilder(object):
+    def __init__(self, player):
+        self.actions = []
+        self.name = player
+
+    # Add a new movement tuple to the list (from_region, to_region, qty)
+    def add(self, from_region, to_region, qty):
+        self.actions.append((from_region, to_region, qty))
+
+    # Convert all queued army movements to a string
+    def to_string(self):
+        if not self.actions:
+            return const.NO_MOVES
+        return ', '.join(['%s %s %s %s %d' % (self.name, const.ATTACK_TRANSFER, action[0], action[1],
+                                              action[2]) for action in self.actions])

@@ -15,7 +15,7 @@
 # work with our modified map and split from the bot class to
 # provide a convenient way for us to create new AIs
 
-from bot import Bot
+from bot import Bot, PlaceArmyBuilder, AttackTransferBuilder
 from const import PLACE_ARMIES, ATTACK_TRANSFER, NO_MOVES
 from math import fmod, pi
 from time import clock
@@ -35,7 +35,7 @@ class RandomBot(Bot):
 
     # Places up to 2 armies on random regions
     def place_armies(self, time_limit):
-        placements = []
+        placements = PlaceArmyBuilder(self.name)
         region_index = 0
         troops_remaining = self.available_armies
         owned_regions = self.map.get_owned_regions(self.name)  # returns a copy of references to owned regions
@@ -43,38 +43,34 @@ class RandomBot(Bot):
         while troops_remaining:
             region = shuffled_regions[region_index]
             if troops_remaining > 1:
-                placements.append([region.id, 2])
+                placements.add(region.id, 2)
                 region.troop_count += 2
                 troops_remaining -= 2
             else:
-                placements.append([region.id, 1])
+                placements.add(region.id, 1)
                 region.troop_count += 1
                 troops_remaining -= 1
             region_index += 1
-        return ', '.join(['%s %s %s %d' % (self.name, PLACE_ARMIES, placement[0], placement[1])
-                          for placement in placements])
+        return placements.to_string()
 
     # Currently checks whether a region has more than six troops placed to attack,
     # or transfers if more than 1 unit is available.
     def attack_transfer(self, time_limit):
-        attack_transfers = []
+        attack_transfers = AttackTransferBuilder(self.name)
         owned_regions = self.map.get_owned_regions(self.name)
         for region in owned_regions:
             neighbors = [region for region in region.neighbors]   # make a copy of references to neighbor regions
             while len(neighbors) > 1:
                 target_region = neighbors[MyRandom.randrange(0, len(neighbors))]
                 if region.owner != target_region.owner and region.troop_count > 6:
-                    attack_transfers.append([region.id, target_region.id, 5])
+                    attack_transfers.add(region.id, target_region.id, 5)
                     region.troop_count -= 5
                 elif region.owner == target_region.owner and region.troop_count > 1:
-                    attack_transfers.append([region.id, target_region.id, region.troop_count - 1])
+                    attack_transfers.add(region.id, target_region.id, region.troop_count - 1)
                     region.troop_count = 1
                 else:
                     neighbors.remove(target_region)
-        if not attack_transfers:
-            return NO_MOVES
-        return ', '.join(['%s %s %s %s %s' % (self.name, ATTACK_TRANSFER, attack_transfer[0], attack_transfer[1],
-                                              attack_transfer[2]) for attack_transfer in attack_transfers])
+        return attack_transfers.to_string()
 
 
 class MyRandom(object):
