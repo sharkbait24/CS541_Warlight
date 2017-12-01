@@ -7,7 +7,7 @@
 
 # There are 42 regions divided between 6 super regions (see map file for names)
 
-from .priority_weights import PriorityWeights
+from priority_weights import PriorityWeights
 
 
 class UniformWeights(object):
