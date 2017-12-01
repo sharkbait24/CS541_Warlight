@@ -7,12 +7,14 @@
 # Add each new bot to this file to be used in the bot_test
 # Be sure to also add the bot's constructor to the dictionary
 from bots.randombot import RandomBot
+from bots.attacbot import AttacBot
 
 
 class AiList(object):
     def __init__(self):
         self.bots = dict()
         self.bots['random'] = RandomBot
+        self.bots['attac'] = AttacBot
 
     # Returns all available bots by name (key)
     def get_bot_names(self):
