@@ -21,7 +21,7 @@ class PriorityWeights(object):
         self.region_weight = dict()
 
         # North America
-        self.super_region_weight['1'] = 1
+        self.super_region_weight['1'] = 5
         self.region_weight['1'] = 3 # Alaska
         self.region_weight['2'] = 4 # Northwest Territory
         self.region_weight['3'] = 4 # Greenland
@@ -33,14 +33,14 @@ class PriorityWeights(object):
         self.region_weight['9'] = 3 # Central America
 
         # South America
-        self.super_region_weight['2'] = 1
+        self.super_region_weight['2'] = 2
         self.region_weight['10'] = 3 # Venezuela
         self.region_weight['11'] = 3 # Peru
         self.region_weight['12'] = 4 # Brazil
         self.region_weight['13'] = 2 # Argentina
 
         # Europe
-        self.super_region_weight['3'] = 1
+        self.super_region_weight['3'] = 5
         self.region_weight['14'] = 3 # Iceland
         self.region_weight['15'] = 4 # Great Britain
         self.region_weight['16'] = 4 # Scandinavia
@@ -51,7 +51,7 @@ class PriorityWeights(object):
 
 
         # Africa
-        self.super_region_weight['4'] = 1
+        self.super_region_weight['4'] = 3
         self.region_weight['21'] = 6 # North Africa
         self.region_weight['22'] = 4 # Egypt
         self.region_weight['23'] = 6 # East Africa
@@ -60,7 +60,7 @@ class PriorityWeights(object):
         self.region_weight['26'] = 2 # Madagascar
 
         # Asia
-        self.super_region_weight['5'] = 1
+        self.super_region_weight['5'] = 7
         self.region_weight['27'] = 4 # Ural
         self.region_weight['28'] = 5 # Siberia
         self.region_weight['29'] = 3 # Yakutsk
@@ -75,11 +75,12 @@ class PriorityWeights(object):
         self.region_weight['38'] = 3 # Siam
 
         # Australia
-        self.super_region_weight['6'] = 1
+        self.super_region_weight['6'] = 2
         self.region_weight['39'] = 2 # Indonesia
         self.region_weight['40'] = 3 # New Guinea
         self.region_weight['41'] = 2 # Western Australia
         self.region_weight['42'] = 2 # Eastern Australia
+
 
 # All available map weights in a convenient dictionary for use in bot_tests
 class MapWeightList(object):
