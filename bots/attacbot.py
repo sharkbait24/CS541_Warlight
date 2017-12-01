@@ -15,7 +15,7 @@
 # work with our modified map and split from the bot class to
 # provide a convenient way for us to create new AIs
 
-from bot import Bot, PlaceArmyBuilder, AttackTransferBuilder
+from .bot import Bot, PlaceArmyBuilder, AttackTransferBuilder
 from const import PLACE_ARMIES, ATTACK_TRANSFER, NO_MOVES
 from math import fmod, pi
 from time import clock
@@ -26,7 +26,6 @@ class AttacBot(Bot):
     def __init__(self, map_weights, heuristic):
         super(AttacBot, self).__init__(map_weights, heuristic)
 
-     
     # Choose a random 6 regions from the ones supplied
     # options[0] is time limit
     ''' THIS SHOULD BE MODIFIED TO PICK OUT OF THE BOTTLE NECKED REGIONS 

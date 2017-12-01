@@ -15,7 +15,7 @@
 # work with our modified map and split from the bot class to
 # provide a convenient way for us to create new AIs
 
-from bot import Bot, PlaceArmyBuilder, AttackTransferBuilder
+from .bot import Bot, PlaceArmyBuilder, AttackTransferBuilder
 from const import PLACE_ARMIES, ATTACK_TRANSFER, NO_MOVES
 from math import fmod, pi
 from time import clock
