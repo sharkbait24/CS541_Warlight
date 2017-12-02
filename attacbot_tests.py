@@ -27,7 +27,7 @@ class BotTester(object):
 
         # Holds the bot, weight and heuristic to be used in tests
         # Assigned defaults so PyCharm will stop giving warnings on calls
-        self.weight = priority_weights.PriotiyWeights()
+        self.weight = priority_weights.PriorityWeights()
         self.heuristic = heuristics.HeuristicList()
         self.bot = ailist.RandomBot(self.weight, self.heuristic)
 
