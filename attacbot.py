@@ -82,9 +82,9 @@ class AttacBot(Bot):
 
     def sorting(items):
         #set up array for weight values
-        int weights[len(items)]
+        weights[len(items)]
         #get weight values for regions
-        int x = 0 
+        x = 0 
         for i in items:
             weights[x] = self.region_weight[i]
             x = x+1
@@ -94,14 +94,13 @@ class AttacBot(Bot):
         
         for x in range(0,len(items)):
             for i in items:
-                if(i!= -1)
-                {
-                    if( weights[x] == self.region_weight[i])
-                    {
+
+                if i != -1:         
+
+                    if weights[x] == self.region_weight[i]:
                             ordered_regions[x] = i
                             i = -1
-                    }
-                }
+
         return ordered_regions
         
 
@@ -126,7 +125,4 @@ class MyRandom(object):
             j = MyRandom.randrange(0, i)
             items[j], items[i] = items[i], items[j]
         return items
-    @staticmethod
-    def selectionSort(items):
-        #sort by greatest weight value
 
