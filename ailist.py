@@ -6,8 +6,8 @@
 
 # Add each new bot to this file to be used in the bot_test
 # Be sure to also add the bot's constructor to the dictionary
-from bots.randombot import RandomBot
-from bots.attacbot import AttacBot
+from randombot import RandomBot
+from attacbot import AttacBot
 
 
 class AiList(object):
