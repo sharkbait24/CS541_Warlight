@@ -80,19 +80,3 @@ class PriorityWeights(object):
         self.region_weight['40'] = 3 # New Guinea
         self.region_weight['41'] = 2 # Western Australia
         self.region_weight['42'] = 2 # Eastern Australia
-
-
-# All available map weights in a convenient dictionary for use in bot_tests
-class MapWeightList(object):
-    def __init__(self):
-        self.map_weights = dict()
-        self.map_weights['priority'] = PriorityWeights
-
-    # Returns all available map weights by name (key)
-    def get_map_weights(self):
-        return self.map_weights.keys()
-
-    # Returns an instance of a specific map weight
-    def create_map_weight(self, name):
-        weight = self.map_weights[name]()
-        return weight
