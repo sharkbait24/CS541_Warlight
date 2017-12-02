@@ -19,7 +19,7 @@ import const
 class BotTester(object):
     def __init__(self):
         self.bot_list = ailist.AiList()
-        self.weight_list = map_weights.MapWeightList()
+        self.weight_list = priority_weights.MapWeightList()
         self.heuristic_list = heuristics.HeuristicList()
         self.region_map = RegionMap()                           # mapping of region ids to names
         self.super_region_map = SuperRegionMap()                # mapping of super region ids to names
@@ -27,7 +27,7 @@ class BotTester(object):
 
         # Holds the bot, weight and heuristic to be used in tests
         # Assigned defaults so PyCharm will stop giving warnings on calls
-        self.weight = map_weights.UniformWeights()
+        self.weight = priority_weights.UniformWeights()
         self.heuristic = heuristics.HeuristicList()
         self.bot = ailist.RandomBot(self.weight, self.heuristic)
 
@@ -71,6 +71,7 @@ class BotTester(object):
     def assert_cmd(self, args, expected):
         resp = self.bot.run_cmd(args)
         if resp != expected:
+# TODO: Assign all the new weights
             print('On command: ', end='')
             print(' '.join(arg for arg in args))
             print('Expected: {exp}'.format(exp=expected))
