@@ -26,7 +26,7 @@ class AttacBot(Bot):
     def __init__(self, map_weights, heuristic):
         super(AttacBot, self).__init__(map_weights, heuristic)
 
-     
+
     # Choose a random 6 regions from the ones supplied
     # options[0] is time limit
     ''' THIS SHOULD BE MODIFIED TO PICK OUT OF THE BOTTLE NECKED REGIONS 

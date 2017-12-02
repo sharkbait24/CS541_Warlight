@@ -7,6 +7,8 @@
 
 # There are 42 regions divided between 6 super regions (see map file for names)
 
+from priority_weights import PriorityWeights
+
 
 class UniformWeights(object):
     def __init__(self):
@@ -14,7 +16,7 @@ class UniformWeights(object):
         self.region_weight = dict()
 
         # North America
-        self.super_region_weight['1'] = 1
+        self.super_region_weight['1'] = 5
         self.region_weight['1'] = 1
         self.region_weight['2'] = 1
         self.region_weight['3'] = 1
@@ -26,14 +28,14 @@ class UniformWeights(object):
         self.region_weight['9'] = 1
 
         # South America
-        self.super_region_weight['2'] = 1
+        self.super_region_weight['2'] = 2
         self.region_weight['10'] = 1
         self.region_weight['11'] = 1
         self.region_weight['12'] = 1
         self.region_weight['13'] = 1
 
         # Europe
-        self.super_region_weight['3'] = 1
+        self.super_region_weight['3'] = 5
         self.region_weight['14'] = 1
         self.region_weight['15'] = 1
         self.region_weight['16'] = 1
@@ -43,7 +45,7 @@ class UniformWeights(object):
         self.region_weight['20'] = 1
 
         # Africa
-        self.super_region_weight['4'] = 1
+        self.super_region_weight['4'] = 3
         self.region_weight['21'] = 1
         self.region_weight['22'] = 1
         self.region_weight['23'] = 1
@@ -52,7 +54,7 @@ class UniformWeights(object):
         self.region_weight['26'] = 1
 
         # Asia
-        self.super_region_weight['5'] = 1
+        self.super_region_weight['5'] = 7
         self.region_weight['27'] = 1
         self.region_weight['28'] = 1
         self.region_weight['29'] = 1
@@ -67,7 +69,7 @@ class UniformWeights(object):
         self.region_weight['38'] = 1
 
         # Australia
-        self.super_region_weight['6'] = 1
+        self.super_region_weight['6'] = 2
         self.region_weight['39'] = 1
         self.region_weight['40'] = 1
         self.region_weight['41'] = 1
@@ -79,6 +81,7 @@ class MapWeightList(object):
     def __init__(self):
         self.map_weights = dict()
         self.map_weights['uniform'] = UniformWeights
+        self.map_weights['priority'] = PriorityWeights
 
     # Returns all available map weights by name (key)
     def get_map_weights(self):

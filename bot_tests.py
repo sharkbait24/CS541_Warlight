@@ -4,6 +4,7 @@
 # supplied in testlist
 #
 # @author Joe Coleman
+# python3
 # -------------------------------------------------
 
 import map_weights

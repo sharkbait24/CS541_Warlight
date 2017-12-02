@@ -2,3 +2,4 @@ warlight_player.py
 .idea*
 *.zip
 __pycache__
+.editorconfig
