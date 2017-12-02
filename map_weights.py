@@ -6,7 +6,7 @@
 # -------------------------------------------------
 
 # There are 42 regions divided between 6 super regions (see map file for names)
-
+from priority_weights import PriorityWeights
 
 class UniformWeights(object):
     def __init__(self):
@@ -79,6 +79,7 @@ class MapWeightList(object):
     def __init__(self):
         self.map_weights = dict()
         self.map_weights['uniform'] = UniformWeights
+        self.map_weights['priority'] = PriorityWeights
 
     # Returns all available map weights by name (key)
     def get_map_weights(self):
