@@ -152,23 +152,4 @@ class AttacBot(Bot):
                     neighbors.remove(target_region)
         return attack_transfers.to_string()
 
-'''
-class MyRandom(object):
-    @staticmethod
-    def randrange(r_min, r_max):
-        # A pseudo random number generator to replace random.randrange
-        #
-        # Works with an inclusive left bound and exclusive right bound.
-        # E.g. Random.randrange(0, 5) in [0, 1, 2, 3, 4] is always true
-        return r_min + int(fmod(pow(clock() + pi, 2), 1.0) * (r_max - r_min))
 
-    @staticmethod
-    def shuffle(items):
-        # Method to shuffle a list of items
-        i = len(items)
-        while i > 1:
-            i -= 1
-            j = MyRandom.randrange(0, i)
-            items[j], items[i] = items[i], items[j]
-        return items
-'''

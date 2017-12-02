@@ -30,12 +30,13 @@ class AttacBot(Bot):
     # options[0] is time limit
     ''' THIS SHOULD BE MODIFIED TO PICK OUT OF THE BOTTLE NECKED REGIONS 
         WE WILL USE options PROVIDED BY SERVER AND EVALUATE WHICH 
-        PriorityWeights ARE = 0 MEANING THE LOCATION IS A BOTTLENECK(DESIRABLE)
         LOCATION FOR PLACING TROOPS '''
     def pick_starting_regions(self, options):
         options = options[1:]
-        shuffled_regions = MyRandom.shuffle(options)
-        return ' '.join(shuffled_regions[:6])
+        priority = options.split()
+        ordered_regions = sorting(priority)
+#        shuffled_regions = MyRandom.shuffle(options)
+        return ' '.join(ordered_regions[:6])
 
     # Places up to 2 armies on random regions
     ''' REPLACE SHUFFLED_REGIONS WITH TUPLE FOR split_last_update WHICH SPLITS 
@@ -74,9 +75,57 @@ class AttacBot(Bot):
                 elif region.owner == target_region.owner and region.troop_count > 1:
                     attack_transfers.add(region.id, target_region.id, region.troop_count - 1)
                     region.troop_count = 1
-                else:
+        else:
                     neighbors.remove(target_region)
         return attack_transfers.to_string()
 
+    def sorting(items):
+        #set up array for weight values
+        int weights[len(items)]
+        #get weight values for regions
+        int x = 0 
+        for i in items:
+            weights[x] = self.region_weight[i]
+            x = x+1
 
+        sorted(weights, reverse=True)
+        ordered_regions = items
+        
+        for x in range(0,len(items)):
+            for i in items:
+                if(i!= -1)
+                {
+                    if( weights[x] == self.region_weight[i])
+                    {
+                            ordered_regions[x] = i
+                            i = -1
+                    }
+                }
+        return ordered_regions
+        
+
+
+                
+
+class MyRandom(object):
+    @staticmethod
+    def randrange(r_min, r_max):
+        # A pseudo random number generator to replace random.randrange
+        #
+        # Works with an inclusive left bound and exclusive right bound.
+        # E.g. Random.randrange(0, 5) in [0, 1, 2, 3, 4] is always true
+        return r_min + int(fmod(pow(clock() + pi, 2), 1.0) * (r_max - r_min))
+
+    @staticmethod
+    def shuffle(items):
+        # Method to shuffle a list of items
+        i = len(items)
+        while i > 1:
+            i -= 1
+            j = MyRandom.randrange(0, i)
+            items[j], items[i] = items[i], items[j]
+        return items
+    @staticmethod
+    def selectionSort(items):
+        #sort by greatest weight value
 

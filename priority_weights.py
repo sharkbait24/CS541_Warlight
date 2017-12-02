@@ -86,7 +86,7 @@ class PriorityWeights(object):
 class MapWeightList(object):
     def __init__(self):
         self.map_weights = dict()
-        self.map_weights['uniform'] = UniformWeights
+        self.map_weights['priority'] = PriorityWeights
 
     # Returns all available map weights by name (key)
     def get_map_weights(self):
