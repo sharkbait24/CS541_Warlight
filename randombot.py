@@ -92,7 +92,7 @@ class MyRandom(object):
             items[j], items[i] = items[i], items[j]
         return items
 
-
+"""
 # AttacBot decides to attack enemy positions over spreading army out to nutrual
 # territory 
 class AttacBot(Bot):
@@ -152,4 +152,4 @@ class AttacBot(Bot):
                     neighbors.remove(target_region)
         return attack_transfers.to_string()
 
-
+"""
