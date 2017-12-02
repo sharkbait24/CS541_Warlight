@@ -20,7 +20,7 @@ from const import PLACE_ARMIES, ATTACK_TRANSFER, NO_MOVES
 from math import fmod, pi
 from time import clock
 
-# AttacBot decides to attack enemy positions over spreading army out to nutrual
+# AttacBot decides to attack enemy positions over spreading army out to neutral
 # territory 
 class AttacBot(Bot):
     def __init__(self, map_weights, heuristic):
