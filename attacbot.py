@@ -34,8 +34,7 @@ class AttacBot(Bot):
         LOCATION FOR PLACING TROOPS '''
     def pick_starting_regions(self, options):
         options = options[1:]
-        priority = options.split()
-        ordered_regions = sorting(priority)
+        ordered_regions = sorting(options)
 #        shuffled_regions = MyRandom.shuffle(options)
         return ' '.join(ordered_regions[:6])
 
