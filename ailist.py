@@ -10,6 +10,7 @@ from randombot import RandomBot
 from attacbot import AttacBot 
 from turtlebot import TurtleBot
 
+
 class AiList(object):
     def __init__(self):
         self.bots = dict()
