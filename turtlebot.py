@@ -19,7 +19,7 @@ from bot import Bot, PlaceArmyBuilder, AttackTransferBuilder
 from const import PLACE_ARMIES, ATTACK_TRANSFER, NO_MOVES
 from math import fmod, pi
 from time import clock
-
+from regionsorter import Sorter
 
 
 # TurtleBot decides to attack enemy positions over spreading army out to nutrual
@@ -50,9 +50,13 @@ class TurtleBot(Bot):
         region_index = 0
         troops_remaining = self.available_armies
         owned_regions = self.map.get_owned_regions(self.name)  # returns a copy of references to owned regions
-        #shuffled_regions = MyRandom.shuffle(owned_regions)
+        owned, neighbors, outliers = self.map.split_last_update(self.name)
+        shuffled_regions = MyRandom.shuffle(owned_regions)
+        
         while troops_remaining:
-            #region = shuffled_regions[region_index]
+            region = shuffled_regions[region_index]
+            #if self.turn_elapsed == 1
+            #else:
             if troops_remaining > 1:
                 placements.add(region.id, 2)
                 region.troop_count += 2
@@ -62,6 +66,7 @@ class TurtleBot(Bot):
                 region.troop_count += 1
                 troops_remaining -= 1
             region_index += 1
+        #self.turn_elapsed = self.turn_elapsed + 1
         return placements.to_string()
 
     # Currently checks whether a region has more than six troops placed to attack,
@@ -82,30 +87,4 @@ class TurtleBot(Bot):
                 else:
                     neighbors.remove(target_region)
         return attack_transfers.to_string()
-
-
-
-class Sorter(object):
-    @staticmethod
-    def sorting(items, bot):
-        #set up array for weight values
-        regions = {}
-        weights = []
-        #get weight values for regions
-        for i in items:
-            regions[i] = bot.map_weights.region_weight[i]
-            weights.append(bot.map_weights.region_weight[i])
-       
-         
-        regions_by_weight = [[key, value] for key, value in regions.items()]
-        regions_by_weight.sort(key=lambda region: region[1])
-    
-        print(regions_by_weight)
-
-        ordered_regions = []
-        for region in regions_by_weight :
-            ordered_regions.append(region[0])
-       
-    
-        return ordered_regions
 
