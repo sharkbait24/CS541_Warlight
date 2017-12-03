@@ -20,11 +20,12 @@ from const import PLACE_ARMIES, ATTACK_TRANSFER, NO_MOVES
 from math import fmod, pi
 from time import clock
 
-# AttacBot decides to attack enemy positions over spreading army out to nutrual
+# AttacBot decides to attack enemy positions over spreading army out to neutral
 # territory 
 class AttacBot(Bot):
     def __init__(self, map_weights, heuristic):
         super(AttacBot, self).__init__(map_weights, heuristic)
+
 
     # Choose a random 6 regions from the ones supplied
     # options[0] is time limit
@@ -33,8 +34,7 @@ class AttacBot(Bot):
         LOCATION FOR PLACING TROOPS '''
     def pick_starting_regions(self, options):
         options = options[1:]
-        priority = options.split()
-        ordered_regions = sorting(priority)
+        ordered_regions = Sorter.sorting(options, self)
 #        shuffled_regions = MyRandom.shuffle(options)
         return ' '.join(ordered_regions[:6])
 
@@ -45,8 +45,10 @@ class AttacBot(Bot):
         placements = PlaceArmyBuilder(self.name)
         region_index = 0
         troops_remaining = self.available_armies
-        owned_regions = self.map.get_owned_regions(self.name)  # returns a copy of references to owned regions
-        shuffled_regions = MyRandom.shuffle(owned_regions)
+#        owned_regions = self.map.get_owned_regions(self.name)  # returns a copy of references to owned regions
+        owned , neighbors, outliers = self.map.split_last_update(self.name)
+
+#        shuffled_regions = MyRandom.shuffle(owned_regions)
         while troops_remaining:
             region = shuffled_regions[region_index]
             if troops_remaining > 1:
@@ -79,28 +81,29 @@ class AttacBot(Bot):
                     neighbors.remove(target_region)
         return attack_transfers.to_string()
 
-    def sorting(items):
-        #set up array for weight values
-        int weights[len(items)]
-        #get weight values for regions
-        int x = 0 
-        for i in items:
-            weights[x] = self.region_weight[i]
-            x = x+1
 
-        sorted(weights, reverse=True)
-        ordered_regions = items
-        
-        for x in range(0,len(items)):
-            for i in items:
-                if(i!= -1)
-                {
-                    if( weights[x] == self.region_weight[i])
-                    {
-                            ordered_regions[x] = i
-                            i = -1
-                    }
-                }
+class Sorter(object):
+    @staticmethod
+    def sorting(items, bot):
+        #set up array for weight values
+        regions = {}
+        weights = []
+        #get weight values for regions
+        for i in items:
+            regions[i] = bot.map_weights.region_weight[i]
+            weights.append(bot.map_weights.region_weight[i])
+       
+         
+        regions_by_weight = [[key, value] for key, value in regions.items()]
+        regions_by_weight.sort(key=lambda region: region[1], reverse=True)
+    
+        print(regions_by_weight)
+
+        ordered_regions = []
+        for region in regions_by_weight :
+            ordered_regions.append(region[0])
+       
+    
         return ordered_regions
         
 
@@ -125,7 +128,4 @@ class MyRandom(object):
             j = MyRandom.randrange(0, i)
             items[j], items[i] = items[i], items[j]
         return items
-    @staticmethod
-    def selectionSort(items):
-        #sort by greatest weight value
 

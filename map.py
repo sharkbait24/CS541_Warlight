@@ -74,6 +74,15 @@ class Map(object):
                 outlier.append(region)
         return player_owned, neighbors, outlier
 
+    # Returns a list of all regions in a list of regions that are owned by the named player
+    @staticmethod
+    def get_owned_in_list(region_list, name):
+        owned = []
+        for region in region_list:
+            if name == region.owner:
+                owned.append(region)
+        return owned
+
     # Initializes super regions from server string input
     def setup_super_regions(self, regions):
         for i in range(0, len(regions), 2):
