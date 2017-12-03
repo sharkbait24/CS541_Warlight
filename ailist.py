@@ -8,14 +8,14 @@
 # Be sure to also add the bot's constructor to the dictionary
 from randombot import RandomBot
 from attacbot import AttacBot 
-
->>>>>>> ae5134eb3243b2200db1ff3a8d5335afcad14553
+from turtlebot import TurtleBot
 
 class AiList(object):
     def __init__(self):
         self.bots = dict()
         self.bots['random'] = RandomBot
         self.bots['attac'] = AttacBot
+        self.bots['turtle'] = TurtleBot
 
     # Returns all available bots by name (key)
     def get_bot_names(self):
