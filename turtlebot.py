@@ -50,9 +50,9 @@ class TurtleBot(Bot):
         region_index = 0
         troops_remaining = self.available_armies
         owned_regions = self.map.get_owned_regions(self.name)  # returns a copy of references to owned regions
-        shuffled_regions = MyRandom.shuffle(owned_regions)
+        #shuffled_regions = MyRandom.shuffle(owned_regions)
         while troops_remaining:
-            region = shuffled_regions[region_index]
+            #region = shuffled_regions[region_index]
             if troops_remaining > 1:
                 placements.add(region.id, 2)
                 region.troop_count += 2
