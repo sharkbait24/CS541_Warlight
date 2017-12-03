@@ -47,7 +47,7 @@ class AttacBot(Bot):
         region_index = 0
         troops_remaining = self.available_armies
         owned_regions = self.map.get_owned_regions(self.name)  # returns a copy of references to owned regions
-        owned , neighbors, outliers = self.map.split_last_update(self.name)
+        owned , neighbors, outliers = self.map.split_last_update(self.name) 
                  
         shuffled_regions = MyRandom.shuffle(owned_regions)
             
@@ -56,7 +56,7 @@ class AttacBot(Bot):
             if self.turn_elapsed == 1:
                 owned = Sorter.sorting(owned, self)
                 best = owned[0]
-                placements.add(best.region_id, troops_remaining)
+                placements.add(best.id, troops_remaining)
                 troops_remaining = 0
             else:
                 
