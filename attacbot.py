@@ -15,6 +15,7 @@
 # work with our modified map and split from the bot class to
 # provide a convenient way for us to create new AIs
 
+from regionsorter import Sorter
 from bot import Bot, PlaceArmyBuilder, AttackTransferBuilder
 from const import PLACE_ARMIES, ATTACK_TRANSFER, NO_MOVES
 from math import fmod, pi
@@ -90,32 +91,6 @@ class AttacBot(Bot):
                 else:
                     neighbors.remove(target_region)
         return attack_transfers.to_string()
-
-
-class Sorter(object):
-    @staticmethod
-    def sorting(items, bot):
-        #set up array for weight values
-        regions = {}
-        weights = []
-        #get weight values for regions
-        for i in items:
-            regions[i] = bot.map_weights.region_weight[i]
-            weights.append(bot.map_weights.region_weight[i])
-       
-         
-        regions_by_weight = [[key, value] for key, value in regions.items()]
-        regions_by_weight.sort(key=lambda region: region[1], reverse=True)
-    
-        print(regions_by_weight)
-
-        ordered_regions = []
-        for region in regions_by_weight :
-            ordered_regions.append(region[0])
-       
-    
-        return ordered_regions
-        
 
 
                 
