@@ -51,26 +51,38 @@ class AttacBot(Bot):
         troops_remaining = self.available_armies
         owned_regions = self.map.get_owned_regions(self.name)  # returns a copy of references to owned regions
         owned , neighbors, outliers = self.map.split_last_update(self.name) 
-        for i in neighbors:
-            print(i.id)
+        """for i in neighbors:
+            print(i.id)"""
             
-        while troops_remaining:
-            region = []
-            if self.turn_elapsed == 1:
-                owned = Sorter.sorting(owned, self, True)
-                best = owned[0]
-                placements.add(best.id, troops_remaining)
-                troops_remaining = 0
-            else:
-                for i in neighbors :
-                    region = region + Map.get_owned_in_list(i.neighbors, self.name)
-                print('**what we found**')
-                for i in region:
-                    print(i.id)
-                troops_remaining = 0
-         
-                    
-            """    if troops_remaining > 1:
+       
+        regions = []
+        if self.turn_elapsed == 1:
+            owned = Sorter.sorting(owned, self, True)
+            best = owned[0]
+            placements.add(best.id, troops_remaining)
+            troops_remaining = 0
+        else:
+            vulnerable = {}
+            for i in neighbors :
+                regions.extend(Map.get_owned_in_list(i.neighbors, self.name))
+            
+            for region in regions:
+                if region in vulnerable :
+                    vulnerable[region] = vulnerable.get(region) + 1
+                else:
+                    vulnerable[region] = 1
+
+            vuln = [[key, value] for key, value in vulnerable.items()]
+            vuln.sort(key=lambda region: region[1], reverse=True)
+            ordered_vuln = []
+            for region in vuln :
+                ordered_vuln.append(region[0])
+
+            index = 0
+            length = len(ordered_vuln)
+            while troops_remaining and index < length:     
+                region = ordered_vuln[index]
+                if troops_remaining > 1:
                     placements.add(region.id, 2)
                     region.troop_count += 2
                     troops_remaining -= 2
@@ -78,9 +90,12 @@ class AttacBot(Bot):
                     placements.add(region.id, 1)
                     region.troop_count += 1
                     troops_remaining -= 1
-
-                    region_index += 1"""
+                index += 1
             
+            if troops_remaining > 0 :
+                placements.add(ordered_vuln[0].id, troops_remaining)
+                troops_remaining = 0;
+
         self.turn_elapsed = self.turn_elapsed + 1
         return placements.to_string()
 
