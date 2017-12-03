@@ -36,7 +36,7 @@ class AttacBot(Bot):
         LOCATION FOR PLACING TROOPS '''
     def pick_starting_regions(self, options):
         option = self.parse_pick_starting_regions(options)
-        ordered_regions = Sorter.sorting(option, self)
+        ordered_regions = Sorter.sorting(option, self, True)
         builder = PickStartingBuilder()
         builder.add_all(ordered_regions[:6])
         return builder.to_string()
@@ -56,7 +56,7 @@ class AttacBot(Bot):
         while troops_remaining:
             region = shuffled_regions[region_index]
             if self.turn_elapsed == 1:
-                owned = Sorter.sorting(owned, self)
+                owned = Sorter.sorting(owned, self, True)
                 best = owned[0]
                 placements.add(best.id, troops_remaining)
                 troops_remaining = 0

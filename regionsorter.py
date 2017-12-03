@@ -2,7 +2,7 @@
 
 class Sorter(object):
     @staticmethod
-    def sorting(references, bot):
+    def sorting(references, bot, descending):
         regions = {}
         #get weight values for regions
         for i in references:
@@ -10,7 +10,7 @@ class Sorter(object):
        
          
         regions_by_weight = [[key, value] for key, value in regions.items()]
-        regions_by_weight.sort(key=lambda region: region[1], reverse=True)
+        regions_by_weight.sort(key=lambda region: region[1], reverse=descending)
     
         #print(regions_by_weight)
 
