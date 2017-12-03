@@ -25,7 +25,7 @@ class Bot(object):
         self.heuristic = heuristic                  # Heuristic to use in evaluation
         self.command = self.build_command_dict()    # A dictionary of commands the server may make
         self.turn_elapsed = 0
-
+        self.new_in_super = [] 
     # A dictionary of available commands that could be sent by the game server
     # and the functions that will be executed for the command received
     def build_command_dict(self):

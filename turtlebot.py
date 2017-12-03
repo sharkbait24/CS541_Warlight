@@ -66,7 +66,7 @@ class TurtleBot(Bot):
         shuffled_regions = MyRandom.shuffle(owned_regions)
         
         new_in_super.sort(key=lambda super_region: super_region[1] )
-       
+        
 
 
         while troops_remaining:
