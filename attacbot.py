@@ -139,7 +139,7 @@ class AttacBot(Bot):
                         attack_transfers.add(region.id, target_region.id, region.troop_count - 1)
                         region.troop_count = 1
                     
-                    neighbors.remove(target_region)
+                neighbors.remove(target_region)
         return attack_transfers.to_string()
 
 
