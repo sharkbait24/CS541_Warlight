@@ -126,6 +126,7 @@ class Map(object):
             region.owner = regions[i + 1]
             region.troop_count = int(regions[i + 2])
             self.last_update.append(region)
+#        self.turn_elapsed = self.turn_elapsed + 1
 
     # Parse the opponent moves into place_armies and attack/transfer commands and
     # store each in a list keyed on the opponent's name

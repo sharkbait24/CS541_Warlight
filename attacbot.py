@@ -23,6 +23,7 @@ from time import clock
 # AttacBot decides to attack enemy positions over spreading army out to neutral
 # territory 
 class AttacBot(Bot):
+
     def __init__(self, map_weights, heuristic):
         super(AttacBot, self).__init__(map_weights, heuristic)
 
@@ -45,21 +46,30 @@ class AttacBot(Bot):
         placements = PlaceArmyBuilder(self.name)
         region_index = 0
         troops_remaining = self.available_armies
-#        owned_regions = self.map.get_owned_regions(self.name)  # returns a copy of references to owned regions
+        owned_regions = self.map.get_owned_regions(self.name)  # returns a copy of references to owned regions
         owned , neighbors, outliers = self.map.split_last_update(self.name)
-
-#        shuffled_regions = MyRandom.shuffle(owned_regions)
+                 
+        shuffled_regions = MyRandom.shuffle(owned_regions)
+            
         while troops_remaining:
             region = shuffled_regions[region_index]
-            if troops_remaining > 1:
-                placements.add(region.id, 2)
-                region.troop_count += 2
-                troops_remaining -= 2
+            if self.turn_elapsed == 1:
+                owned = Sorter.sorting(owned, self)
+                best = owned[:1]
+                placements.add(best.id,troops_remaining)
+                troops_remaining =0
             else:
-                placements.add(region.id, 1)
-                region.troop_count += 1
-                troops_remaining -= 1
-            region_index += 1
+                
+                if troops_remaining > 1:
+                    placements.add(region.id, 2)
+                    region.troop_count += 2
+                    troops_remaining -= 2
+                else:
+                    placements.add(region.id, 1)
+                    region.troop_count += 1
+                    troops_remaining -= 1
+                region_index += 1
+        self.turn_elapsed = self.turn_elapsed + 1
         return placements.to_string()
 
     # Currently checks whether a region has more than six troops placed to attack,
