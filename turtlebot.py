@@ -15,10 +15,9 @@
 # work with our modified map and split from the bot class to
 # provide a convenient way for us to create new AIs
 
-from scipy.stats import binom
-from map import Map
 from bot import Bot, PlaceArmyBuilder, AttackTransferBuilder, PickStartingBuilder
-from const import NO_MOVES
+from map import Map
+from math import factorial
 from regionsorter import Sorter
 
 
@@ -93,29 +92,42 @@ class TurtleBot(Bot):
             unowned = super_region[region.super_region.id]
             for neighbor in region.neighbors:
                 if neighbor.owner != self.name:
-                    danger = unowned * edge_weight * capture_chance(neighbor, region)
-                    in_danger[region.id] = in_danger.get(region.id, 1) * danger
+                    if neighbor.owner in self.opponents:
+                        danger = unowned * edge_weight * capture_chance(neighbor, region)
+                        in_danger[region.id] = in_danger.get(region.id, 1) * danger
 
                     edges = len(neighbor.neighbors)
                     not_own = super_region[neighbor.super_region.id]
-                    priority = not_own * edges * (1 - capture_chance(region, neighbor))
+                    priority = not_own * edges * capture_chance(region, neighbor)
                     prioritize.append((region, neighbor, priority))
 
+        # Setting priority values for transferring to an owned region
         for region in owned_regions:
             for neighbor in region.neighbors:
                 if neighbor.owner == self.name:
                     edge_weight = len(neighbor.neighbors)
                     unowned = super_region[neighbor.super_region.id]
-                    priority = unowned * edge_weight * in_danger.get(neighbor.id, 1)
+                    priority = unowned * edge_weight * in_danger.get(neighbor.id, 10)
                     prioritize.append((region, neighbor, priority))
+        prioritize.sort(key=lambda priority: priority[2])
 
-        return NO_MOVES
+        for move in prioritize:
+            if move[0].troop_count > 1:
+                attack_transfers.add(move[0].id, move[1].id, move[0].troop_count - 1)
+                move[0].troop_count = 1
+
+        return attack_transfers.to_string()
 
 
 def capture_chance(region, neighbor):
     n = region.troop_count
     k = neighbor.troop_count
     p = 0.6
-    return binom.cdf(k, n, p)
+    sum = 0
+
+    while k < n:
+        sum += (factorial(n)/(factorial(k)*factorial(n-k))) * p**k * (1 - p)**(n-k)
+        k += 1
+    return sum
 
 
