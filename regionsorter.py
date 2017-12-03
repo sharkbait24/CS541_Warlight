@@ -12,7 +12,7 @@ class Sorter(object):
         regions_by_weight = [[key, value] for key, value in regions.items()]
         regions_by_weight.sort(key=lambda region: region[1], reverse=True)
     
-        print(regions_by_weight)
+        #print(regions_by_weight)
 
         ordered_regions = []
         for region in regions_by_weight :

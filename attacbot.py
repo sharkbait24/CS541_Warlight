@@ -16,7 +16,7 @@
 # provide a convenient way for us to create new AIs
 
 from regionsorter import Sorter
-from bot import Bot, PlaceArmyBuilder, AttackTransferBuilder
+from bot import Bot, PlaceArmyBuilder, AttackTransferBuilder, PickStartingBuilder
 from const import PLACE_ARMIES, ATTACK_TRANSFER, NO_MOVES
 from math import fmod, pi
 from time import clock
@@ -35,10 +35,11 @@ class AttacBot(Bot):
         WE WILL USE options PROVIDED BY SERVER AND EVALUATE WHICH 
         LOCATION FOR PLACING TROOPS '''
     def pick_starting_regions(self, options):
-        options = options[1:]
-        ordered_regions = Sorter.sorting(options, self)
-#        shuffled_regions = MyRandom.shuffle(options)
-        return ' '.join(ordered_regions[:6])
+        option = self.parse_pick_starting_regions(options)
+        ordered_regions = Sorter.sorting(option, self)
+        builder = PickStartingBuilder()
+        builder.add_all(ordered_regions[:6])
+        return builder.to_string()
 
     # Places up to 2 armies on random regions
     ''' REPLACE SHUFFLED_REGIONS WITH TUPLE FOR split_last_update WHICH SPLITS 
