@@ -103,7 +103,7 @@ class Sorter(object):
             regions[i] = bot.map_weights.region_weight[i]
             weights.append(bot.map_weights.region_weight[i])
        
-         
+
         regions_by_weight = [[key, value] for key, value in regions.items()]
         regions_by_weight.sort(key=lambda region: region[1], reverse=True)
     
