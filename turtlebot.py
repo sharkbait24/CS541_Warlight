@@ -15,10 +15,10 @@
 # work with our modified map and split from the bot class to
 # provide a convenient way for us to create new AIs
 
-from bot import Bot, PlaceArmyBuilder, AttackTransferBuilder
+from map import Map
+from bot import Bot, PlaceArmyBuilder, AttackTransferBuilder, PickStartingBuilder
 from const import PLACE_ARMIES, ATTACK_TRANSFER, NO_MOVES
-from math import fmod, pi
-from time import clock
+from regionsorter import Sorter
 
 
 # TurtleBot decides to attack enemy positions over spreading army out to nutrual
@@ -27,40 +27,49 @@ class TurtleBot(Bot):
     def __init__(self, map_weights, heuristic):
         super(TurtleBot, self).__init__(map_weights, heuristic)
 
-    # Choose a random 6 regions from the ones supplied
+    # Choose a  the region with lowest adjacent regions to start
     # options[0] is time limit
-    ''' THIS SHOULD BE MODIFIED TO PICK OUT OF THE BOTTLE NECKED REGIONS 
-        WE WILL USE options PROVIDED BY SERVER AND EVALUATE WHICH 
-        PriorityWeights ARE = 0 MEANING THE LOCATION IS A BOTTLENECK(DESIRABLE)
-        LOCATION FOR PLACING TROOPS '''
-    
     def pick_starting_regions(self, options):
-        options = options[1:]
-        ordered_regions = Sorter.sorting(options, self)
-#        shuffled_regions = MyRandom.shuffle(options)
-        return ' '.join(ordered_regions[:6])
+        option = self.parse_pick_starting_regions(options)
+        ordered_regions = Sorter.sorting(option, self, False) # false means ascending order
+        builder = PickStartingBuilder()
+        builder.add_all(ordered_regions[:6])
+        return builder.to_string()
 
     # Places up to 2 armies on random regions
-    ''' REPLACE SHUFFLED_REGIONS WITH TUPLE FOR split_last_update WHICH SPLITS 
-        THE LIST OF REGIONS INTO player_owned , neighbors , outliers '''
-
     def place_armies(self, time_limit):
         placements = PlaceArmyBuilder(self.name)
-        region_index = 0
         troops_remaining = self.available_armies
-        owned_regions = self.map.get_owned_regions(self.name)  # returns a copy of references to owned regions
-        shuffled_regions = MyRandom.shuffle(owned_regions)
+        owned, neighbors, outliers = self.map.split_last_update(self.name)
+        
+        in_super = []
+        for region in owned:
+            in_super.append(region.super_region)
+        
+        new_in_super = []
+        for x in in_super:
+            num_owned = len(x.regions)-len(Map.get_owned_in_list(x.regions, self.name))
+            new_in_super.append((x, num_owned))
+        new_in_super.sort(key=lambda super_region: super_region[1])
+
         while troops_remaining:
-            region = shuffled_regions[region_index]
-            if troops_remaining > 1:
-                placements.add(region.id, 2)
-                region.troop_count += 2
-                troops_remaining -= 2
+            if self.turn_elapsed == 1:
+                owned = Sorter.sorting(owned, self, False)
+                best = owned[0]
+                placements.add(best.id, troops_remaining)
+                troops_remaining = 0
             else:
-                placements.add(region.id, 1)
-                region.troop_count += 1
-                troops_remaining -= 1
-            region_index += 1
+                for x in new_in_super:
+                    if x[1] != 0:
+                        for y in x[0].regions:
+                            if y.owner != self.name:
+                                owned_neighbors = Map.get_owned_in_list(y.neighbors, self.name)
+                                for z in owned_neighbors:
+                                    if troops_remaining > 0:
+                                        placements.add(z.id, 1)
+                                        troops_remaining -= 1
+                
+        self.turn_elapsed = self.turn_elapsed + 1
         return placements.to_string()
 
     # Currently checks whether a region has more than six troops placed to attack,
@@ -81,27 +90,4 @@ class TurtleBot(Bot):
                 else:
                     neighbors.remove(target_region)
         return attack_transfers.to_string()
-
-
-class Sorter(object):
-    @staticmethod
-    def sorting(items, bot):
-        #set up array for weight values
-        regions = {}
-        weights = []
-        #get weight values for regions
-        for i in items:
-            regions[i] = bot.map_weights.region_weight[i]
-            weights.append(bot.map_weights.region_weight[i])
-
-        regions_by_weight = [[key, value] for key, value in regions.items()]
-        regions_by_weight.sort(key=lambda region: region[1])
-    
-        print(regions_by_weight)
-
-        ordered_regions = []
-        for region in regions_by_weight :
-            ordered_regions.append(region[0])
-
-        return ordered_regions
 

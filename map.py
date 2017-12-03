@@ -68,7 +68,7 @@ class Map(object):
         for region in self.last_update:
             if region.owner == player:
                 player_owned.append(region)
-            elif player in region.neighbors:
+            elif player in [neighbor.owner for neighbor in region.neighbors]:
                 neighbors.append(region)
             else:
                 outlier.append(region)
@@ -126,6 +126,7 @@ class Map(object):
             region.owner = regions[i + 1]
             region.troop_count = int(regions[i + 2])
             self.last_update.append(region)
+#        self.turn_elapsed = self.turn_elapsed + 1
 
     # Parse the opponent moves into place_armies and attack/transfer commands and
     # store each in a list keyed on the opponent's name

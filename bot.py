@@ -24,7 +24,8 @@ class Bot(object):
         self.map_weights = map_weights              # Collection of weights for the map regions and super regions
         self.heuristic = heuristic                  # Heuristic to use in evaluation
         self.command = self.build_command_dict()    # A dictionary of commands the server may make
-
+        self.turn_elapsed = 0
+        self.new_in_super = [] 
     # A dictionary of available commands that could be sent by the game server
     # and the functions that will be executed for the command received
     def build_command_dict(self):
@@ -139,6 +140,14 @@ class Bot(object):
     def attack_transfer(self, time):
         return ''
 
+    # Parses the server input for picking starting regions into a list of regions
+    def parse_pick_starting_regions(self, options):
+        option_list = options[1:]
+        regions = []
+        for option in option_list:
+            regions.append(self.map.regions[option])
+        return regions
+
 
 # Used for easy building of the output string for placing armies
 class PlaceArmyBuilder(object):
@@ -174,3 +183,18 @@ class AttackTransferBuilder(object):
             return const.NO_MOVES
         return ', '.join(['%s %s %s %s %d' % (self.name, const.ATTACK_TRANSFER, action[0], action[1],
                                               action[2]) for action in self.actions])
+
+
+# Used for easy building of the output string for placing starting armies
+class PickStartingBuilder(object):
+    def __init__(self):
+        self.regions = []
+
+    # Add all starting region choices
+    def add_all(self, region_list):
+        for region in region_list:
+            self.regions.append(region.id)
+
+    # Convert all queued army movements to a string
+    def to_string(self):
+        return ' '.join([region for region in self.regions])
