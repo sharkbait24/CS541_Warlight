@@ -9,6 +9,8 @@
 from randombot import RandomBot
 from attacbot import AttacBot 
 
+>>>>>>> ae5134eb3243b2200db1ff3a8d5335afcad14553
+
 class AiList(object):
     def __init__(self):
         self.bots = dict()
