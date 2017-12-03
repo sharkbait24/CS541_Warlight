@@ -87,7 +87,7 @@ class AttacBot(Bot):
                 elif region.owner == target_region.owner and region.troop_count > 1:
                     attack_transfers.add(region.id, target_region.id, region.troop_count - 1)
                     region.troop_count = 1
-        else:
+                else:
                     neighbors.remove(target_region)
         return attack_transfers.to_string()
 
