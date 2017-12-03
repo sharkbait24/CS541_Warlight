@@ -15,6 +15,7 @@
 # work with our modified map and split from the bot class to
 # provide a convenient way for us to create new AIs
 
+from randombot import MyRandom
 from regionsorter import Sorter
 from bot import Bot, PlaceArmyBuilder, AttackTransferBuilder, PickStartingBuilder
 from const import PLACE_ARMIES, ATTACK_TRANSFER, NO_MOVES
@@ -105,38 +106,42 @@ class AttacBot(Bot):
         attack_transfers = AttackTransferBuilder(self.name)
         owned_regions = self.map.get_owned_regions(self.name)
         for region in owned_regions:
+            #print('checking region')
             neighbors = [region for region in region.neighbors]   # make a copy of references to neighbor regions
             while len(neighbors) > 1:
-                target_region = neighbors[MyRandom.randrange(0, len(neighbors))]
-                if region.owner != target_region.owner and region.troop_count > 6:
-                    attack_transfers.add(region.id, target_region.id, 5)
-                    region.troop_count -= 5
-                elif region.owner == target_region.owner and region.troop_count > 1:
+                #print('checking neighbors')
+                target_region = neighbors[MyRandom.randrange(0, len(neighbors))] 
+                #below is the case for neighboring enemy regions.
+                if region.owner != target_region.owner and region.troop_count - target_region.troop_count >= 2 :
                     attack_transfers.add(region.id, target_region.id, region.troop_count - 1)
                     region.troop_count = 1
-                else:
-                    neighbors.remove(target_region)
+                
+                #below is for regions that we own.
+                elif region.owner == target_region.owner and target_region.troop_count > 1:
+                    region_enemy_count = 0
+                    target_enemy_count = 0
+                    for adjacent in target_region.neighbors :
+                        if adjacent.owner != region.owner :
+                            target_enemy_count += 1
+                    for target_adjacent in region.neighbors :
+                        if target_adjacent.owner != region.owner :
+                            region_enemy_count += 1
+                    
+                    if region_enemy_count == 0 and target_enemy_count == 0 :
+                        attack_transfers.add(target_region.id, region.id, target_region.troop_count - 1)
+                        target_region.troop_count = 1
+                    
+                    elif target_enemy_count == 0 and target_region.troop_count > 1:
+                        attack_transfers.add(target_region.id, region.id, target_region.troop_count - 1)
+                        target_region.troop_count = 1
+
+                    elif region_enemy_count == 0 and region.troop_count > 1 and target_enemy_count > 0 :
+                        attack_transfers.add(region.id, target_region.id, region.troop_count - 1)
+                        region.troop_count = 1
+                
+                neighbors.remove(target_region)
         return attack_transfers.to_string()
 
 
                 
-
-class MyRandom(object):
-    @staticmethod
-    def randrange(r_min, r_max):
-        # A pseudo random number generator to replace random.randrange
-        #
-        # Works with an inclusive left bound and exclusive right bound.
-        # E.g. Random.randrange(0, 5) in [0, 1, 2, 3, 4] is always true
-        return r_min + int(fmod(pow(clock() + pi, 2), 1.0) * (r_max - r_min))
-
-    @staticmethod
-    def shuffle(items):
-        # Method to shuffle a list of items
-        i = len(items)
-        while i > 1:
-            i -= 1
-            j = MyRandom.randrange(0, i)
-            items[j], items[i] = items[i], items[j]
-        return items
 
