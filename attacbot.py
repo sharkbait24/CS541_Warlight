@@ -51,7 +51,7 @@ class AttacBot(Bot):
         troops_remaining = self.available_armies
         owned_regions = self.map.get_owned_regions(self.name)  # returns a copy of references to owned regions
         owned , neighbors, outliers = self.map.split_last_update(self.name) 
-        for i in owned:
+        for i in neighbors:
             print(i.id)
             
         while troops_remaining:
@@ -63,10 +63,11 @@ class AttacBot(Bot):
                 troops_remaining = 0
             else:
                 for i in neighbors :
-                    region.extend(Map.get_owned_in_list(i.neighbors, self.name))
+                    region = region + Map.get_owned_in_list(i.neighbors, self.name)
                 print('**what we found**')
                 for i in region:
                     print(i.id)
+                troops_remaining = 0
          
                     
             """    if troops_remaining > 1:

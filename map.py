@@ -68,7 +68,7 @@ class Map(object):
         for region in self.last_update:
             if region.owner == player:
                 player_owned.append(region)
-            elif player in region.neighbors:
+            elif player in [neighbor.owner for neighbor in region.neighbors]:
                 neighbors.append(region)
             else:
                 outlier.append(region)
