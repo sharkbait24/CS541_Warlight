@@ -138,8 +138,8 @@ class AttacBot(Bot):
                     elif region_enemy_count == 0 and region.troop_count > 1 and target_enemy_count > 0 :
                         attack_transfers.add(region.id, target_region.id, region.troop_count - 1)
                         region.troop_count = 1
-                
-                neighbors.remove(target_region)
+                    
+                    neighbors.remove(target_region)
         return attack_transfers.to_string()
 
 
