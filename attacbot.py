@@ -34,8 +34,7 @@ class AttacBot(Bot):
         LOCATION FOR PLACING TROOPS '''
     def pick_starting_regions(self, options):
         options = options[1:]
-        priority = options.split()
-        ordered_regions = sorting(priority)
+        ordered_regions = Sorter.sorting(options, self)
 #        shuffled_regions = MyRandom.shuffle(options)
         return ' '.join(ordered_regions[:6])
 
@@ -80,27 +79,29 @@ class AttacBot(Bot):
                     neighbors.remove(target_region)
         return attack_transfers.to_string()
 
-    def sorting(items):
+
+class Sorter(object):
+    @staticmethod
+    def sorting(items, bot):
         #set up array for weight values
-        weights[len(items)]
+        regions = {}
+        weights = []
         #get weight values for regions
-        x = 0 
         for i in items:
-            weights[x] = self.region_weight[i]
-            x = x+1
+            regions[i] = bot.map_weights.region_weight[i]
+            weights.append(bot.map_weights.region_weight[i])
+       
+         
+        regions_by_weight = [[key, value] for key, value in regions.items()]
+        regions_by_weight.sort(key=lambda region: region[1], reverse=True)
+    
+        print(regions_by_weight)
 
-        sorted(weights, reverse=True)
-        ordered_regions = items
-        
-        for x in range(0,len(items)):
-            for i in items:
-
-                if i != -1:         
-
-                    if weights[x] == self.region_weight[i]:
-                            ordered_regions[x] = i
-                            i = -1
-
+        ordered_regions = []
+        for region in regions_by_weight :
+            ordered_regions.append(region[0])
+       
+    
         return ordered_regions
         
 
