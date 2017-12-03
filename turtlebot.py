@@ -16,6 +16,7 @@
 # provide a convenient way for us to create new AIs
 
 from map import Map
+from randombot import MyRandom
 from bot import Bot, PlaceArmyBuilder, AttackTransferBuilder, PickStartingBuilder
 from const import PLACE_ARMIES, ATTACK_TRANSFER, NO_MOVES
 from regionsorter import Sorter
@@ -42,33 +43,33 @@ class TurtleBot(Bot):
         troops_remaining = self.available_armies
         owned, neighbors, outliers = self.map.split_last_update(self.name)
         
-        in_super = []
+        super_set = set()
         for region in owned:
-            in_super.append(region.super_region)
-        
-        new_in_super = []
-        for x in in_super:
-            num_owned = len(x.regions)-len(Map.get_owned_in_list(x.regions, self.name))
-            new_in_super.append((x, num_owned))
-        new_in_super.sort(key=lambda super_region: super_region[1])
+            super_set.add(region.super_region)
+
+        super_set = list(super_set)
+        super_list = []
+        for x in super_set:
+            x_owned = len(x.regions)-len(Map.get_owned_in_list(x.regions, self.name))
+            super_list.append((x, x_owned))
+        super_list.sort(key=lambda super_region: super_region[1])
+
+        if self.turn_elapsed == 1:
+            owned = Sorter.sorting(owned, self, False)
+            best = owned[0]
+            placements.add(best.id, troops_remaining)
+            troops_remaining = 0
 
         while troops_remaining:
-            if self.turn_elapsed == 1:
-                owned = Sorter.sorting(owned, self, False)
-                best = owned[0]
-                placements.add(best.id, troops_remaining)
-                troops_remaining = 0
-            else:
-                for x in new_in_super:
-                    if x[1] != 0:
-                        for y in x[0].regions:
-                            if y.owner != self.name:
-                                owned_neighbors = Map.get_owned_in_list(y.neighbors, self.name)
-                                for z in owned_neighbors:
-                                    if troops_remaining > 0:
-                                        placements.add(z.id, 1)
-                                        troops_remaining -= 1
-                
+            for x in super_list:
+                for y in x[0].regions:
+                    if y.owner != self.name:
+                        owned_neighbors = Map.get_owned_in_list(y.neighbors, self.name)
+                        for z in owned_neighbors:
+                            if troops_remaining > 0:
+                                placements.add(z.id, 1)
+                                troops_remaining -= 1
+
         self.turn_elapsed = self.turn_elapsed + 1
         return placements.to_string()
 
