@@ -55,9 +55,9 @@ class AttacBot(Bot):
             region = shuffled_regions[region_index]
             if self.turn_elapsed == 1:
                 owned = Sorter.sorting(owned, self)
-                best = owned[:1]
-                placements.add(best.id,troops_remaining)
-                troops_remaining =0
+                best = owned[0]
+                placements.add(best.region_id, troops_remaining)
+                troops_remaining = 0
             else:
                 
                 if troops_remaining > 1:
