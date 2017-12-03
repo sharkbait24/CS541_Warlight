@@ -20,6 +20,7 @@ from bot import Bot, PlaceArmyBuilder, AttackTransferBuilder, PickStartingBuilde
 from const import PLACE_ARMIES, ATTACK_TRANSFER, NO_MOVES
 from math import fmod, pi
 from time import clock
+from map import Map
 
 # AttacBot decides to attack enemy positions over spreading army out to neutral
 # territory 
@@ -50,19 +51,25 @@ class AttacBot(Bot):
         troops_remaining = self.available_armies
         owned_regions = self.map.get_owned_regions(self.name)  # returns a copy of references to owned regions
         owned , neighbors, outliers = self.map.split_last_update(self.name) 
-                 
-        shuffled_regions = MyRandom.shuffle(owned_regions)
+        for i in owned:
+            print(i.id)
             
         while troops_remaining:
-            region = shuffled_regions[region_index]
+            region = []
             if self.turn_elapsed == 1:
                 owned = Sorter.sorting(owned, self, True)
                 best = owned[0]
                 placements.add(best.id, troops_remaining)
                 troops_remaining = 0
             else:
-                
-                if troops_remaining > 1:
+                for i in neighbors :
+                    region.extend(Map.get_owned_in_list(i.neighbors, self.name))
+                print('**what we found**')
+                for i in region:
+                    print(i.id)
+         
+                    
+            """    if troops_remaining > 1:
                     placements.add(region.id, 2)
                     region.troop_count += 2
                     troops_remaining -= 2
@@ -70,7 +77,9 @@ class AttacBot(Bot):
                     placements.add(region.id, 1)
                     region.troop_count += 1
                     troops_remaining -= 1
-                region_index += 1
+
+                    region_index += 1"""
+            
         self.turn_elapsed = self.turn_elapsed + 1
         return placements.to_string()
 

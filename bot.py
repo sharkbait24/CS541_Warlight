@@ -24,7 +24,7 @@ class Bot(object):
         self.map_weights = map_weights              # Collection of weights for the map regions and super regions
         self.heuristic = heuristic                  # Heuristic to use in evaluation
         self.command = self.build_command_dict()    # A dictionary of commands the server may make
-        self.turn_elapsed = 1
+        self.turn_elapsed = 0
 
     # A dictionary of available commands that could be sent by the game server
     # and the functions that will be executed for the command received
