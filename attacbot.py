@@ -48,6 +48,7 @@ class AttacBot(Bot):
     ''' REPLACE SHUFFLED_REGIONS WITH TUPLE FOR split_last_update WHICH SPLITS 
         THE LIST OF REGIONS INTO player_owned , neighbors , outliers ''' 
     def place_armies(self, time_limit):
+        start = time.time()
         placements = PlaceArmyBuilder(self.name)
         troops_remaining = self.available_armies
         owned, neighbors, outliers = self.map.split_last_update(self.name)
@@ -78,6 +79,10 @@ class AttacBot(Bot):
             index = 0
             length = len(ordered_vuln)
             while troops_remaining and index < length:     
+                end = time.time()
+                if end - start > .3:
+                    return placements.to_string()
+
                 region = ordered_vuln[index]
                 if troops_remaining > 1:
                     placements.add(region.id, 2)
@@ -163,7 +168,7 @@ class AttacBot(Bot):
                     attack_transfers.add(move["region"].id, move["neighbor"].id, move["troops"])
                 move["region"].troop_count = 1
                 end = time.time()
-                if end - start > 1.8:
+                if end - start > 1.6:
                     return attack_transfers.to_string()
 
         return attack_transfers.to_string()
