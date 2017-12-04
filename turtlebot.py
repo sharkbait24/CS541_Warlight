@@ -92,14 +92,29 @@ class TurtleBot(Bot):
             unowned = super_region[region.super_region.id]
             for neighbor in region.neighbors:
                 if neighbor.owner != self.name:
-                    if neighbor.owner in self.opponents:
-                        danger = unowned * edge_weight * capture_chance(neighbor, region)
-                        in_danger[region.id] = in_danger.get(region.id, 1) * danger
+                    # if neighbor.owner in self.opponents:
+                    danger = unowned * edge_weight * (1 - capture_chance(neighbor, region))
+                    in_danger[region.id] = in_danger.get(region.id, 1) * danger
 
                     edges = len(neighbor.neighbors)
                     not_own = super_region[neighbor.super_region.id]
-                    priority = not_own * edges * capture_chance(region, neighbor)
-                    prioritize.append((region, neighbor, priority))
+                    priority = not_own * edges * (1 - capture_chance(region, neighbor))
+                    if neighbor.is_on_super_region_border:
+                        priority = priority * 0.5
+                    prioritize.append({
+                        "region": region,
+                        "neighbor": neighbor,
+                        "troops": region.troop_count - 1,
+                        "priority": priority,
+                    })
+
+                    no_attack = not_own * edges * 0.5
+                    prioritize.append({
+                        "region": region,
+                        "neighbor": neighbor,
+                        "troops": 0,
+                        "priority": no_attack,
+                    })
 
         # Setting priority values for transferring to an owned region
         for region in owned_regions:
@@ -107,18 +122,28 @@ class TurtleBot(Bot):
                 if neighbor.owner == self.name:
                     edge_weight = len(neighbor.neighbors)
                     unowned = super_region[neighbor.super_region.id]
-                    priority = unowned * edge_weight * in_danger.get(neighbor.id, 10)
-                    prioritize.append((region, neighbor, priority))
-        prioritize.sort(key=lambda priority: priority[2])
+                    priority = 2 * unowned * edge_weight * in_danger.get(neighbor.id, 10)
+                    if unowned == 0:
+                        priority = 10 * edge_weight * in_danger.get(neighbor.id, 10)
+                    prioritize.append({
+                        "region": region,
+                        "neighbor": neighbor,
+                        "troops": region.troop_count - 1,
+                        "priority": priority,
+                    })
+        prioritize.sort(key=lambda to_move: to_move["priority"])
 
         for move in prioritize:
-            if move[0].troop_count > 1:
-                attack_transfers.add(move[0].id, move[1].id, move[0].troop_count - 1)
-                move[0].troop_count = 1
+            if move["region"].troop_count > 1:
+                if move["troops"] > 1:
+                    attack_transfers.add(move["region"].id, move["neighbor"].id, move["troops"])
+                move["region"].troop_count = 1
 
         return attack_transfers.to_string()
 
 
+# Calculates the cdf for each army destroying AT MOST each enemy army.
+# (1 - capture_chance) gives probability of killing AT LEAST all the enemies armies.
 def capture_chance(region, neighbor):
     n = region.troop_count
     k = neighbor.troop_count
