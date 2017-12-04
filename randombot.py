@@ -17,7 +17,7 @@
 
 from bot import Bot, PlaceArmyBuilder, AttackTransferBuilder
 from random import Random
-
+from time
 
 # RandomBot as the name implies does everything by choosing randomly
 class RandomBot(Bot):
@@ -34,6 +34,7 @@ class RandomBot(Bot):
 
     # Places up to 2 armies on random regions
     def place_armies(self, time_limit):
+        start = time.time()
         placements = PlaceArmyBuilder(self.name)
         region_index = 0
         troops_remaining = self.available_armies
@@ -41,7 +42,12 @@ class RandomBot(Bot):
         shuffled_regions = self.rand.shuffle(owned_regions)
 
         while troops_remaining:
+            end = time.time()
             region = shuffled_regions[region_index]
+            
+            if end-start > .3:
+                return placements.to_string()
+
             if troops_remaining > 1:
                 placements.add(region.id, 2)
                 region.troop_count += 2
@@ -56,8 +62,10 @@ class RandomBot(Bot):
     # Currently checks whether a region has more than six troops placed to attack,
     # or transfers if more than 1 unit is available.
     def attack_transfer(self, time_limit):
+        start = time.time()
         attack_transfers = AttackTransferBuilder(self.name)
         owned_regions = self.map.get_owned_regions(self.name)
+        
         for region in owned_regions:
             neighbors = [neighbor for neighbor in region.neighbors]   # make a copy of references to neighbor regions
             while len(neighbors) > 1:
@@ -70,6 +78,11 @@ class RandomBot(Bot):
                     region.troop_count = 1
                 else:
                     neighbors.remove(target_region)
+
+                end = time.time()
+                if end - start > 1.6:
+                    return attack_transfers.to_string()
+        
         return attack_transfers.to_string()
 
     @staticmethod
