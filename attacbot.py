@@ -132,14 +132,14 @@ class AttacBot(Bot):
                     #print(region_enemy_count)
 
                     if region_enemy_count == 0 and target_enemy_count == 0 :
-                        attack_transfers.add(target_region.id, region.id, target_region.troop_count - 1)
-                        region.troop_count += (target_region.troop_count -1)
+                        attack_transfers.add(region.id, target_region.id, region.troop_count - 1)
+                        region.troop_count = 1
                         #target_region.troop_count = 1
                         #print('transferring to friendly region')
 
-                    elif target_enemy_count == 0 and target_region.troop_count > 1:
-                        attack_transfers.add(target_region.id, region.id, target_region.troop_count - 1)
-                        region.troop_count += (target_region.troop_count - 1)
+                    elif region_enemy_count == 0 and region.troop_count > 1:
+                        attack_transfers.add(region.id, target_region.id, region.troop_count - 1)
+                        region.troop_count  = 1
                         #target_region.troop_count = 1
                         #print('transferring to frontier')
 
@@ -148,7 +148,7 @@ class AttacBot(Bot):
                         region.troop_count = 1
                         #print('transfering to frontier')
                     else :
-                        thing = 1 + 1
+                        two = 1 + 1
                         #print('the unhandles case')
                 neighbors.remove(target_region)
                 #print('removing region from queue')
