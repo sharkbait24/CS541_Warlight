@@ -112,13 +112,14 @@ class AttacBot(Bot):
                 #print('checking neighbors')
                 target_region = neighbors[MyRandom.randrange(0, len(neighbors))] 
                 #below is the case for neighboring enemy regions.
-                if region.owner != target_region.owner and region.troop_count - target_region.troop_count >= 2 :
+                if region.owner != target_region.owner and (region.troop_count - target_region.troop_count) >= 2 :
                     attack_transfers.add(region.id, target_region.id, region.troop_count - 1)
                     region.troop_count = 1
+                    #print('attacking')
 
                 #below is for regions that we own.
-            elif region.owner == target_region.owner and target_region.troop_count > 1:
-                region_enemy_count = 0
+                elif region.owner == target_region.owner and target_region.troop_count > 1:
+                    region_enemy_count = 0
                     target_enemy_count = 0
                     for adjacent in target_region.neighbors :
                         if adjacent.owner != region.owner :
@@ -127,19 +128,32 @@ class AttacBot(Bot):
                         if target_adjacent.owner != region.owner :
                             region_enemy_count += 1
 
+                    #print(target_enemy_count)
+                    #print(region_enemy_count)
+
                     if region_enemy_count == 0 and target_enemy_count == 0 :
                         attack_transfers.add(target_region.id, region.id, target_region.troop_count - 1)
-                        target_region.troop_count = 1
+                        region.troop_count += (target_region.troop_count -1)
+                        #target_region.troop_count = 1
+                        #print('transferring to friendly region')
 
                     elif target_enemy_count == 0 and target_region.troop_count > 1:
                         attack_transfers.add(target_region.id, region.id, target_region.troop_count - 1)
-                        target_region.troop_count = 1
+                        region.troop_count += (target_region.troop_count - 1)
+                        #target_region.troop_count = 1
+                        #print('transferring to frontier')
 
                     elif region_enemy_count == 0 and region.troop_count > 1 and target_enemy_count > 0 :
                         attack_transfers.add(region.id, target_region.id, region.troop_count - 1)
                         region.troop_count = 1
+                        #print('transfering to frontier')
+                    else :
+                        thing = 1 + 1
+                        #print('the unhandles case')
+
 
                 neighbors.remove(target_region)
+                print('removing region from queue')
 
         return attack_transfers.to_string()
 
