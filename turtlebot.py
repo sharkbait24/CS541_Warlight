@@ -15,11 +15,9 @@
 # work with our modified map and split from the bot class to
 # provide a convenient way for us to create new AIs
 
-from map import Map
 from bot import Bot, PlaceArmyBuilder, AttackTransferBuilder, PickStartingBuilder
-from const import PLACE_ARMIES, ATTACK_TRANSFER, NO_MOVES
-from math import fmod, pi
-from time import clock
+from map import Map
+from math import factorial
 from regionsorter import Sorter
 
 
@@ -29,13 +27,8 @@ class TurtleBot(Bot):
     def __init__(self, map_weights, heuristic):
         super(TurtleBot, self).__init__(map_weights, heuristic)
 
-    # Choose a random 6 regions from the ones supplied
+    # Choose the region with lowest adjacent regions to start
     # options[0] is time limit
-    ''' THIS SHOULD BE MODIFIED TO PICK OUT OF THE BOTTLE NECKED REGIONS 
-        WE WILL USE options PROVIDED BY SERVER AND EVALUATE WHICH 
-        PriorityWeights ARE = 0 MEANING THE LOCATION IS A BOTTLENECK(DESIRABLE)
-        LOCATION FOR PLACING TROOPS '''
-    
     def pick_starting_regions(self, options):
         option = self.parse_pick_starting_regions(options)
         ordered_regions = Sorter.sorting(option, self, False) # false means ascending order
@@ -43,52 +36,40 @@ class TurtleBot(Bot):
         builder.add_all(ordered_regions[:6])
         return builder.to_string()
 
-    # Places up to 2 armies on random regions
-    ''' REPLACE SHUFFLED_REGIONS WITH TUPLE FOR split_last_update WHICH SPLITS 
-        THE LIST OF REGIONS INTO player_owned , neighbors , outliers '''
-
+    # Places armies by prioritizing regions next to unowned regions, in super regions turtlebot controls.
     def place_armies(self, time_limit):
         placements = PlaceArmyBuilder(self.name)
-        region_index = 0
         troops_remaining = self.available_armies
-        owned_regions = self.map.get_owned_regions(self.name)  # returns a copy of references to owned regions
         owned, neighbors, outliers = self.map.split_last_update(self.name)
         
-        in_super = set()
-        
+        super_set = set()
         for region in owned:
-            in_super.add(region.super_region)
-        
-        in_super = list(in_super)
-        
-        new_in_super = [(x,len(x.regions) - len(Map.get_owned_in_list(x.regions, self.name))) for x in in_super]
+            super_set.add(region.super_region)
 
-        shuffled_regions = MyRandom.shuffle(owned_regions)
-        
-        new_in_super.sort(key=lambda super_region: super_region[1] )
-        
+        super_set = list(super_set)
+        super_list = list()
+        for x in super_set:
+            unowned = len(x.regions) - len(Map.get_owned_in_list(x.regions, self.name))
+            super_list.append((x, unowned))
+        super_list.sort(key=lambda super_region: super_region[1])
 
+        if self.turn_elapsed == 1:
+            owned = Sorter.sorting(owned, self, False)
+            best = owned[0]
+            placements.add(best.id, troops_remaining)
+            troops_remaining = 0
 
         while troops_remaining:
+            for x in super_list:
+                if x[1] != 0:
+                    for y in x[0].regions:
+                        if y.owner != self.name:
+                            owned_neighbors = Map.get_owned_in_list(y.neighbors, self.name)
+                            for z in owned_neighbors:
+                                if troops_remaining > 0:
+                                    placements.add(z.id, 1)
+                                    troops_remaining -= 1
 
-            if self.turn_elapsed == 1:
-                owned = Sorter.sorting(owned, self, False)
-                best = owned[0]
-                placements.add(best.id, troops_remaining)
-                troops_remaining = 0
-
-            else:
-                
-                for x in new_in_super:
-                    if x[1] != 0:
-                        for y in x[0].regions:
-                            if y.owner != self.name:
-                                owned_neighbors = Map.get_owned_in_list(y.neighbors, self.name)
-                                for z in owned_neighbors:
-                                    if troops_remaining > 0:
-                                        placements.add(z.id, 1)
-                                        troops_remaining -= 1
-                
         self.turn_elapsed = self.turn_elapsed + 1
         return placements.to_string()
 
@@ -97,38 +78,81 @@ class TurtleBot(Bot):
     def attack_transfer(self, time_limit):
         attack_transfers = AttackTransferBuilder(self.name)
         owned_regions = self.map.get_owned_regions(self.name)
+
+        super_region = dict()
+        for key, value in self.map.super_regions.items():
+            unowned = len(value.regions) - len(Map.get_owned_in_list(value.regions, self.name))
+            super_region[value.id] = unowned
+
+        in_danger = dict()
+        prioritize = []
+        # Setting up priority values for attacking unowned regions
         for region in owned_regions:
-            neighbors = [region for region in region.neighbors]  # make a copy of references to neighbor regions
-            while len(neighbors) > 1:
-                target_region = neighbors[MyRandom.randrange(0, len(neighbors))]
-                if region.owner != target_region.owner and region.troop_count > 6:
-                    attack_transfers.add(region.id, target_region.id, 5)
-                    region.troop_count -= 5
-                elif region.owner == target_region.owner and region.troop_count > 1:
-                    attack_transfers.add(region.id, target_region.id, region.troop_count - 1)
-                    region.troop_count = 1
-                else:
-                    neighbors.remove(target_region)
+            edge_weight = len(region.neighbors)
+            unowned = super_region[region.super_region.id]
+            for neighbor in region.neighbors:
+                if neighbor.owner != self.name:
+                    # if neighbor.owner in self.opponents:
+                    danger = unowned * edge_weight * (1 - capture_chance(neighbor, region))
+                    in_danger[region.id] = in_danger.get(region.id, 1) * danger
+
+                    edges = len(neighbor.neighbors)
+                    not_own = super_region[neighbor.super_region.id]
+                    priority = not_own * edges * (1 - capture_chance(region, neighbor))
+                    if neighbor.is_on_super_region_border:
+                        priority = priority * 0.5
+                    prioritize.append({
+                        "region": region,
+                        "neighbor": neighbor,
+                        "troops": region.troop_count - 1,
+                        "priority": priority,
+                    })
+
+                    no_attack = not_own * edges * 0.5
+                    prioritize.append({
+                        "region": region,
+                        "neighbor": neighbor,
+                        "troops": 0,
+                        "priority": no_attack,
+                    })
+
+        # Setting priority values for transferring to an owned region
+        for region in owned_regions:
+            for neighbor in region.neighbors:
+                if neighbor.owner == self.name:
+                    edge_weight = len(neighbor.neighbors)
+                    unowned = super_region[neighbor.super_region.id]
+                    priority = 2 * unowned * edge_weight * in_danger.get(neighbor.id, 10)
+                    if unowned == 0:
+                        priority = 10 * edge_weight * in_danger.get(neighbor.id, 10)
+                    prioritize.append({
+                        "region": region,
+                        "neighbor": neighbor,
+                        "troops": region.troop_count - 1,
+                        "priority": priority,
+                    })
+        prioritize.sort(key=lambda to_move: to_move["priority"])
+
+        for move in prioritize:
+            if move["region"].troop_count > 1:
+                if move["troops"] > 1:
+                    attack_transfers.add(move["region"].id, move["neighbor"].id, move["troops"])
+                move["region"].troop_count = 1
+
         return attack_transfers.to_string()
 
 
+# Calculates the cdf for each army destroying AT MOST each enemy army.
+# (1 - capture_chance) gives probability of killing AT LEAST all the enemies armies.
+def capture_chance(region, neighbor):
+    n = region.troop_count
+    k = neighbor.troop_count
+    p = 0.6
+    sum = 0
 
-class MyRandom(object):
-    @staticmethod
-    def randrange(r_min, r_max):
-        # A pseudo random number generator to replace random.randrange
-        #
-        # Works with an inclusive left bound and exclusive right bound.
-        # E.g. Random.randrange(0, 5) in [0, 1, 2, 3, 4] is always true
-        return r_min + int(fmod(pow(clock() + pi, 2), 1.0) * (r_max - r_min))
+    while k < n:
+        sum += (factorial(n)/(factorial(k)*factorial(n-k))) * p**k * (1 - p)**(n-k)
+        k += 1
+    return sum
 
-    @staticmethod
-    def shuffle(items):
-        # Method to shuffle a list of items
-        i = len(items)
-        while i > 1:
-            i -= 1
-            j = MyRandom.randrange(0, i)
-            items[j], items[i] = items[i], items[j]
-        return items
 
