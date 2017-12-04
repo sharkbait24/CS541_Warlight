@@ -16,21 +16,20 @@
 # provide a convenient way for us to create new AIs
 
 from bot import Bot, PlaceArmyBuilder, AttackTransferBuilder
-from const import PLACE_ARMIES, ATTACK_TRANSFER, NO_MOVES
-from math import fmod, pi
-from time import clock
+from random import Random
 
 
 # RandomBot as the name implies does everything by choosing randomly
 class RandomBot(Bot):
     def __init__(self, map_weights, heuristic):
         super(RandomBot, self).__init__(map_weights, heuristic)
+        self.rand = MyRandom()
 
     # Choose a random 6 regions from the ones supplied
     # options[0] is time limit
     def pick_starting_regions(self, options):
         options = options[1:]
-        shuffled_regions = MyRandom.shuffle(options)
+        shuffled_regions = self.rand.shuffle(options)
         return ' '.join(shuffled_regions[:6])
 
     # Places up to 2 armies on random regions
@@ -39,7 +38,8 @@ class RandomBot(Bot):
         region_index = 0
         troops_remaining = self.available_armies
         owned_regions = self.map.get_owned_regions(self.name)  # returns a copy of references to owned regions
-        shuffled_regions = MyRandom.shuffle(owned_regions)
+        shuffled_regions = self.rand.shuffle(owned_regions)
+
         while troops_remaining:
             region = shuffled_regions[region_index]
             if troops_remaining > 1:
@@ -59,9 +59,9 @@ class RandomBot(Bot):
         attack_transfers = AttackTransferBuilder(self.name)
         owned_regions = self.map.get_owned_regions(self.name)
         for region in owned_regions:
-            neighbors = [region for region in region.neighbors]   # make a copy of references to neighbor regions
+            neighbors = [neighbor for neighbor in region.neighbors]   # make a copy of references to neighbor regions
             while len(neighbors) > 1:
-                target_region = neighbors[MyRandom.randrange(0, len(neighbors))]
+                target_region = neighbors[self.rand.randrange(0, len(neighbors))]
                 if region.owner != target_region.owner and region.troop_count > 6:
                     attack_transfers.add(region.id, target_region.id, 5)
                     region.troop_count -= 5
@@ -72,23 +72,24 @@ class RandomBot(Bot):
                     neighbors.remove(target_region)
         return attack_transfers.to_string()
 
+    @staticmethod
+    def print_ids(regions):
+        print([region.id for region in regions])
+
 
 class MyRandom(object):
-    @staticmethod
-    def randrange(r_min, r_max):
-        # A pseudo random number generator to replace random.randrange
-        #
-        # Works with an inclusive left bound and exclusive right bound.
-        # E.g. Random.randrange(0, 5) in [0, 1, 2, 3, 4] is always true
-        return r_min + int(fmod(pow(clock() + pi, 2), 1.0) * (r_max - r_min))
+    def __init__(self):
+        self.random = Random()
+        self.random.seed()
 
-    @staticmethod
-    def shuffle(items):
+    def randrange(self, r_min, r_max):
+        return self.random.randint(r_min, r_max-1)
+
+    def shuffle(self, items):
         # Method to shuffle a list of items
         i = len(items)
         while i > 1:
             i -= 1
-            j = MyRandom.randrange(0, i)
+            j = self.randrange(0, i)
             items[j], items[i] = items[i], items[j]
         return items
-
