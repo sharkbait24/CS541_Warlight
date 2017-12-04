@@ -54,8 +54,8 @@ class AttacBot(Bot):
         owned , neighbors, outliers = self.map.split_last_update(self.name) 
         """for i in neighbors:
             print(i.id)"""
-            
-       
+
+
         regions = []
         if self.turn_elapsed == 1:
             owned = Sorter.sorting(owned, self, True)
@@ -66,7 +66,7 @@ class AttacBot(Bot):
             vulnerable = {}
             for i in neighbors :
                 regions.extend(Map.get_owned_in_list(i.neighbors, self.name))
-            
+
             for region in regions:
                 if region in vulnerable :
                     vulnerable[region] = vulnerable.get(region) + 1
@@ -92,7 +92,7 @@ class AttacBot(Bot):
                     region.troop_count += 1
                     troops_remaining -= 1
                 index += 1
-            
+
             if troops_remaining > 0 :
                 placements.add(ordered_vuln[0].id, troops_remaining)
                 troops_remaining = 0;
@@ -115,10 +115,10 @@ class AttacBot(Bot):
                 if region.owner != target_region.owner and region.troop_count - target_region.troop_count >= 2 :
                     attack_transfers.add(region.id, target_region.id, region.troop_count - 1)
                     region.troop_count = 1
-                
+
                 #below is for regions that we own.
-                elif region.owner == target_region.owner and target_region.troop_count > 1:
-                    region_enemy_count = 0
+            elif region.owner == target_region.owner and target_region.troop_count > 1:
+                region_enemy_count = 0
                     target_enemy_count = 0
                     for adjacent in target_region.neighbors :
                         if adjacent.owner != region.owner :
@@ -126,11 +126,11 @@ class AttacBot(Bot):
                     for target_adjacent in region.neighbors :
                         if target_adjacent.owner != region.owner :
                             region_enemy_count += 1
-                    
+
                     if region_enemy_count == 0 and target_enemy_count == 0 :
                         attack_transfers.add(target_region.id, region.id, target_region.troop_count - 1)
                         target_region.troop_count = 1
-                    
+
                     elif target_enemy_count == 0 and target_region.troop_count > 1:
                         attack_transfers.add(target_region.id, region.id, target_region.troop_count - 1)
                         target_region.troop_count = 1
@@ -138,10 +138,11 @@ class AttacBot(Bot):
                     elif region_enemy_count == 0 and region.troop_count > 1 and target_enemy_count > 0 :
                         attack_transfers.add(region.id, target_region.id, region.troop_count - 1)
                         region.troop_count = 1
-                    
+
                 neighbors.remove(target_region)
+
         return attack_transfers.to_string()
 
 
-                
+
 
