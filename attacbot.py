@@ -104,9 +104,12 @@ class AttacBot(Bot):
         for region in owned_regions:
             #print('checking region')
             neighbors = [region for region in region.neighbors]   # make a copy of references to neighbor regions
-            while len(neighbors) > 1:
+            length = len(neighbors)
+            index = 0
+
+            while index < length :
                 #print('checking neighbors')
-                target_region = neighbors[0] 
+                target_region = neighbors[index] 
                 #below is the case for neighboring enemy regions.
                 if region.owner != target_region.owner :
                     if (region.troop_count - target_region.troop_count) > 1 :
@@ -135,7 +138,8 @@ class AttacBot(Bot):
                     else :
                         two = 1 + 1
                         #print('the unhandled case')
-                neighbors.remove(target_region)
+                
+                index += 1
                 #print('removing region from queue')
 
         return attack_transfers.to_string()
