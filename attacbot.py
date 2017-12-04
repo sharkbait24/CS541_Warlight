@@ -110,9 +110,9 @@ class AttacBot(Bot):
             neighbors = [region for region in region.neighbors]   # make a copy of references to neighbor regions
             while len(neighbors) > 1:
                 #print('checking neighbors')
-                target_region = neighbors[MyRandom.randrange(0, len(neighbors))] 
+                target_region = neighbors[0] 
                 #below is the case for neighboring enemy regions.
-                if region.owner != target_region.owner and (region.troop_count - target_region.troop_count) >= 2 :
+                if region.owner != target_region.owner and (region.troop_count - target_region.troop_count) > 1 :
                     attack_transfers.add(region.id, target_region.id, region.troop_count - 1)
                     region.troop_count = 1
                     #print('attacking')
