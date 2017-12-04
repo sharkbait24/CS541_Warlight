@@ -95,6 +95,7 @@ class AttacBot(Bot):
 
             if troops_remaining > 0 :
                 placements.add(ordered_vuln[0].id, troops_remaining)
+                ordered_vuln[0].troops_remaining += troops_remaining
                 troops_remaining = 0;
 
         self.turn_elapsed = self.turn_elapsed + 1
