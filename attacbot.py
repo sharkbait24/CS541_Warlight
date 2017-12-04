@@ -48,21 +48,16 @@ class AttacBot(Bot):
         THE LIST OF REGIONS INTO player_owned , neighbors , outliers ''' 
     def place_armies(self, time_limit):
         placements = PlaceArmyBuilder(self.name)
-        region_index = 0
         troops_remaining = self.available_armies
-        owned_regions = self.map.get_owned_regions(self.name)  # returns a copy of references to owned regions
         owned , neighbors, outliers = self.map.split_last_update(self.name) 
-        """for i in neighbors:
-            print(i.id)"""
 
-
-        regions = []
         if self.turn_elapsed == 1:
             owned = Sorter.sorting(owned, self, True)
             best = owned[0]
             placements.add(best.id, troops_remaining)
             troops_remaining = 0
         else:
+            regions = []
             vulnerable = {}
             for i in neighbors :
                 regions.extend(Map.get_owned_in_list(i.neighbors, self.name))
@@ -113,13 +108,13 @@ class AttacBot(Bot):
                 #print('checking neighbors')
                 target_region = neighbors[0] 
                 #below is the case for neighboring enemy regions.
-                if region.owner != target_region.owner and (region.troop_count - target_region.troop_count) > 1 :
-                    attack_transfers.add(region.id, target_region.id, region.troop_count - 1)
-                    region.troop_count = 1
-                    #print('attacking')
-
+                if region.owner != target_region.owner :
+                    if (region.troop_count - target_region.troop_count) > 1 :
+                        attack_transfers.add(region.id, target_region.id, region.troop_count - 1)
+                        region.troop_count = 1
+                        #print('attacking')
                 #below is for regions that we own.
-                elif region.owner == target_region.owner and target_region.troop_count > 1:
+                elif region.owner == target_region.owner :
                     region_enemy_count = 0
                     target_enemy_count = 0
                     for adjacent in target_region.neighbors :
@@ -128,17 +123,26 @@ class AttacBot(Bot):
                     for target_adjacent in region.neighbors :
                         if target_adjacent.owner != region.owner :
                             region_enemy_count += 1
-
+                    
                     #print(target_enemy_count)
                     #print(region_enemy_count)
 
-                    if region_enemy_count == 0 and target_enemy_count == 0 :
+                    if region_enemy_count == 0 and target_enemy_count > 0 :
                         attack_transfers.add(region.id, target_region.id, region.troop_count - 1)
                         region.troop_count = 1
                         #target_region.troop_count = 1
                         #print('transferring to friendly region')
+                    else :
+                        two = 1 + 1
+                        #print('the unhandled case')
+                neighbors.remove(target_region)
+                #print('removing region from queue')
 
-                    elif region_enemy_count == 0 and region.troop_count > 1:
+        return attack_transfers.to_string()
+
+
+
+"""elif region_enemy_count > 0 and region.troop_count > 1:
                         attack_transfers.add(region.id, target_region.id, region.troop_count - 1)
                         region.troop_count  = 1
                         #target_region.troop_count = 1
@@ -147,15 +151,5 @@ class AttacBot(Bot):
                     elif region_enemy_count == 0 and region.troop_count > 1 and target_enemy_count > 0 :
                         attack_transfers.add(region.id, target_region.id, region.troop_count - 1)
                         region.troop_count = 1
-                        #print('transfering to frontier')
-                    else :
-                        two = 1 + 1
-                        #print('the unhandles case')
-                neighbors.remove(target_region)
-                #print('removing region from queue')
-
-        return attack_transfers.to_string()
-
-
-
+                        #print('transfering to frontier')"""
 
