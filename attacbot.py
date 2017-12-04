@@ -101,48 +101,103 @@ class AttacBot(Bot):
     def attack_transfer(self, time_limit):
         attack_transfers = AttackTransferBuilder(self.name)
         owned_regions = self.map.get_owned_regions(self.name)
+
+        num_enemies = dict()
         for region in owned_regions:
-            #print('checking region')
-            neighbors = [region for region in region.neighbors]   # make a copy of references to neighbor regions
-            length = len(neighbors)
-            index = 0
+            enemies = 0
+            for neighbor in region.neighbors:
+                if self.name != neighbor.owner:
+                    enemies += 1
+            num_enemies[region.id] = enemies
 
-            while index < length :
-                #print('checking neighbors')
-                target_region = neighbors[index] 
-                #below is the case for neighboring enemy regions.
-                if region.owner != target_region.owner :
-                    if (region.troop_count - target_region.troop_count) > 1 :
-                        attack_transfers.add(region.id, target_region.id, region.troop_count - 1)
-                        region.troop_count = 1
-                        #print('attacking')
-                #below is for regions that we own.
-                elif region.owner == target_region.owner :
-                    region_enemy_count = 0
-                    target_enemy_count = 0
-                    for adjacent in target_region.neighbors :
-                        if adjacent.owner != region.owner :
-                            target_enemy_count += 1
-                    for target_adjacent in region.neighbors :
-                        if target_adjacent.owner != region.owner :
-                            region_enemy_count += 1
-                    
-                    #print(target_enemy_count)
-                    #print(region_enemy_count)
+        prioritize = []
+        # Setting up priority values for attacking unowned regions
+        for region in owned_regions:
+            for neighbor in region.neighbors:
+                if neighbor.owner != self.name:
+                    # if neighbor.owner in self.opponents:
+                    edges = len(neighbor.neighbors)
+                    priority = edges * ((region.troop_count - 1) / neighbor.troop_count)
+                    prioritize.append({
+                        "region": region,
+                        "neighbor": neighbor,
+                        "troops": region.troop_count - 1,
+                        "priority": priority,
+                    })
 
-                    if region_enemy_count == 0 and target_enemy_count > 0 :
-                        attack_transfers.add(region.id, target_region.id, region.troop_count - 1)
-                        region.troop_count = 1
-                        #target_region.troop_count = 1
-                        #print('transferring to friendly region')
-                    else :
-                        two = 1 + 1
-                        #print('the unhandled case')
-                
-                index += 1
-                #print('removing region from queue')
+                    no_attack = edges
+                    prioritize.append({
+                        "region": region,
+                        "neighbor": neighbor,
+                        "troops": 0,
+                        "priority": no_attack,
+                    })
+                else:
+                    edges = len(neighbor.neighbors)
+                    if num_enemies[region.id] == 0:
+                        priority = edges * 10
+                    else:
+                        priority = edges * (num_enemies[neighbor.id] / num_enemies[region.id])
+
+                    prioritize.append({
+                        "region": region,
+                        "neighbor": neighbor,
+                        "troops": region.troop_count - 1,
+                        "priority": priority,
+                    })
+
+                    no_attack = edges
+                    prioritize.append({
+                        "region": region,
+                        "neighbor": neighbor,
+                        "troops": 0,
+                        "priority": no_attack,
+                    })
+
+        prioritize.sort(key=lambda to_move: to_move["priority"], reverse=True)
+
+        for move in prioritize:
+            if move["region"].troop_count > 1:
+                if move["troops"] > 1:
+                    attack_transfers.add(move["region"].id, move["neighbor"].id, move["troops"])
+                move["region"].troop_count = 1
 
         return attack_transfers.to_string()
+
+        """
+        for region in owned_regions:
+            neighbors = [neighbor for neighbor in region.neighbors]   # make a copy of references to neighbor regions
+            length = len(neighbors)
+            index = 0
+            done = False
+            while index < length and not done:
+                target_region = neighbors[index]
+                if self.name != target_region.owner:
+                    if (region.troop_count - target_region.troop_count) > 1:
+                        attack_transfers.add(region.id, target_region.id, region.troop_count - 1)
+                        region.troop_count = 1
+                        done = True
+                # below is for regions that we own.
+                elif region.troop_count > 1:
+                    region_enemy_count = 0
+                    target_enemy_count = 0
+                    for adjacent in target_region.neighbors:
+                        if adjacent.owner != region.owner:
+                            target_enemy_count += 1
+                    for target_adjacent in region.neighbors:
+                        if target_adjacent.owner != region.owner:
+                            region_enemy_count += 1
+
+                    if region_enemy_count < target_enemy_count:
+                        attack_transfers.add(region.id, target_region.id, region.troop_count - 1)
+                        region.troop_count = 1
+                        done = True
+                    else :
+                        two = 1 + 1
+                index += 1
+
+        return attack_transfers.to_string()
+        """
 
 
 
