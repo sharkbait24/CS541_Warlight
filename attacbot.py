@@ -150,10 +150,8 @@ class AttacBot(Bot):
                     else :
                         thing = 1 + 1
                         #print('the unhandles case')
-
-
                 neighbors.remove(target_region)
-                print('removing region from queue')
+                #print('removing region from queue')
 
         return attack_transfers.to_string()
 
