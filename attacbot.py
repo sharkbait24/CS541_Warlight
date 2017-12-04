@@ -21,6 +21,7 @@ from bot import Bot, PlaceArmyBuilder, AttackTransferBuilder, PickStartingBuilde
 from const import PLACE_ARMIES, ATTACK_TRANSFER, NO_MOVES
 from math import fmod, pi
 from time import clock
+import time
 from map import Map
 
 # AttacBot decides to attack enemy positions over spreading army out to neutral
@@ -49,7 +50,7 @@ class AttacBot(Bot):
     def place_armies(self, time_limit):
         placements = PlaceArmyBuilder(self.name)
         troops_remaining = self.available_armies
-        owned , neighbors, outliers = self.map.split_last_update(self.name) 
+        owned, neighbors, outliers = self.map.split_last_update(self.name)
 
         if self.turn_elapsed == 1:
             owned = Sorter.sorting(owned, self, True)
@@ -90,8 +91,8 @@ class AttacBot(Bot):
 
             if troops_remaining > 0 :
                 placements.add(ordered_vuln[0].id, troops_remaining)
-                ordered_vuln[0].troops_remaining += troops_remaining
-                troops_remaining = 0;
+                ordered_vuln[0].troop_count += troops_remaining
+                troops_remaining = 0
 
         self.turn_elapsed = self.turn_elapsed + 1
         return placements.to_string()
@@ -99,6 +100,7 @@ class AttacBot(Bot):
     # Currently checks whether a region has more than six troops placed to attack,
     # or transfers if more than 1 unit is available.
     def attack_transfer(self, time_limit):
+        start = time.time()
         attack_transfers = AttackTransferBuilder(self.name)
         owned_regions = self.map.get_owned_regions(self.name)
 
@@ -138,7 +140,6 @@ class AttacBot(Bot):
                         priority = edges * 10
                     else:
                         priority = edges * (num_enemies[neighbor.id] / num_enemies[region.id])
-
                     prioritize.append({
                         "region": region,
                         "neighbor": neighbor,
@@ -161,54 +162,8 @@ class AttacBot(Bot):
                 if move["troops"] > 1:
                     attack_transfers.add(move["region"].id, move["neighbor"].id, move["troops"])
                 move["region"].troop_count = 1
+                end = time.time()
+                if end - start > 1.8:
+                    return attack_transfers.to_string()
 
         return attack_transfers.to_string()
-
-        """
-        for region in owned_regions:
-            neighbors = [neighbor for neighbor in region.neighbors]   # make a copy of references to neighbor regions
-            length = len(neighbors)
-            index = 0
-            done = False
-            while index < length and not done:
-                target_region = neighbors[index]
-                if self.name != target_region.owner:
-                    if (region.troop_count - target_region.troop_count) > 1:
-                        attack_transfers.add(region.id, target_region.id, region.troop_count - 1)
-                        region.troop_count = 1
-                        done = True
-                # below is for regions that we own.
-                elif region.troop_count > 1:
-                    region_enemy_count = 0
-                    target_enemy_count = 0
-                    for adjacent in target_region.neighbors:
-                        if adjacent.owner != region.owner:
-                            target_enemy_count += 1
-                    for target_adjacent in region.neighbors:
-                        if target_adjacent.owner != region.owner:
-                            region_enemy_count += 1
-
-                    if region_enemy_count < target_enemy_count:
-                        attack_transfers.add(region.id, target_region.id, region.troop_count - 1)
-                        region.troop_count = 1
-                        done = True
-                    else :
-                        two = 1 + 1
-                index += 1
-
-        return attack_transfers.to_string()
-        """
-
-
-
-"""elif region_enemy_count > 0 and region.troop_count > 1:
-                        attack_transfers.add(region.id, target_region.id, region.troop_count - 1)
-                        region.troop_count  = 1
-                        #target_region.troop_count = 1
-                        #print('transferring to frontier')
-
-                    elif region_enemy_count == 0 and region.troop_count > 1 and target_enemy_count > 0 :
-                        attack_transfers.add(region.id, target_region.id, region.troop_count - 1)
-                        region.troop_count = 1
-                        #print('transfering to frontier')"""
-
